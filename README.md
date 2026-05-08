@@ -167,7 +167,9 @@ Status progresses: `sent` → `opened` → `replied` → `converted`
 
 ## 👤 Author
 
-Built by **[Your Name]** for the Google Cloud Rapid Agent Hackathon — MongoDB Partner Track.
+Built by :
+        **SANDEEP KUMAAR**
+        **SANJAY E**
 
 ---
 
