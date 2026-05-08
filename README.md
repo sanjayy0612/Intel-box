@@ -1,6 +1,6 @@
 # 🧠 Market Intelligence Engine
 
-> Built for the **Google Cloud Rapid Agent Hackathon** — MongoDB Partner Track
+
 
 An AI-powered agent that automates end-to-end pre-sales research, lead identification, and personalized outreach — in minutes, not days.
 
