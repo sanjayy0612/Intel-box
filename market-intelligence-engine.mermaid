@@ -1,0 +1,120 @@
+flowchart TD
+    INPUT(["`**INPUT**
+    Company Name
+    One-Line Category`"])
+
+    INPUT --> AGENT
+
+    subgraph AGENT["🤖 Gemini Agent Layer"]
+        direction TB
+        WS["🔍 Web Search + Grounding
+        — Brand & business research
+        — News & campaign tracking
+        — LinkedIn & public profiles"]
+        GEN["✍️ Gemini Generation
+        — Synthesize intelligence
+        — Draft outreach messages
+        — Identify decision-makers"]
+        WS --> GEN
+    end
+
+    AGENT --> MCP
+
+    subgraph MCP["🟢 MongoDB MCP Server"]
+        direction TB
+
+        subgraph INTEL["Intelligence Collections"]
+            C1[("company_profiles
+            — Business model
+            — Market position
+            — Brand perception")]
+            C2[("competitor_map
+            — 3–5 competitors
+            — Strengths & gaps
+            — Marketing activity")]
+            C3[("brand_activity
+            — Campaigns (12–24 months)
+            — Launches & events
+            — Experiential footprint")]
+        end
+
+        subgraph LEADS["Lead Collections"]
+            C4[("decision_makers
+            — Name & role
+            — Seniority level
+            — Role relevance")]
+            C5[("contact_intelligence
+            — Email IDs
+            — Phone numbers
+            — LinkedIn profiles")]
+        end
+
+        subgraph OUTREACH["Outreach Collections"]
+            C6[("outreach_drafts
+            — LinkedIn message
+            — Email draft
+            — Brand context used")]
+            C7[("outreach_tracker
+            — sent_at timestamp
+            — channel: email/LinkedIn
+            — status: sent/opened/replied")]
+        end
+
+        INTEL --- LEADS
+        LEADS --- OUTREACH
+    end
+
+    MCP --> OUTPUT
+
+    subgraph OUTPUT["📤 Output Layer"]
+        direction LR
+        O1["📊 Intelligence Report
+        Sections 1–6"]
+        O2["👤 Decision-Maker Cards
+        Sections 7–8"]
+        O3["✉️ Personalized Outreach
+        Section 9"]
+        O4["📈 Engagement Tracker
+        Section 10"]
+    end
+
+    OUTPUT --> EVAL
+
+    subgraph EVAL["📏 Evaluation & Tracking"]
+        E1["Response Rate %"]
+        E2["Open Rate Logging"]
+        E3["Follow-up Trigger Logic"]
+        E1 --- E2 --- E3
+    end
+
+    MULTI["🔁 Repeat for 3 Companies
+    Zero Reconfiguration
+    Schema-Agnostic via MongoDB"]
+    EVAL --> MULTI
+    MULTI -->|"New company input"| INPUT
+
+    style INPUT fill:#6366f1,color:#fff,stroke:#4f46e5
+    style AGENT fill:#1e293b,color:#fff,stroke:#334155
+    style MCP fill:#00684a,color:#fff,stroke:#005c42
+    style OUTPUT fill:#0f172a,color:#fff,stroke:#1e293b
+    style EVAL fill:#7c3aed,color:#fff,stroke:#6d28d9
+    style MULTI fill:#b45309,color:#fff,stroke:#92400e
+    style WS fill:#1e3a5f,color:#fff,stroke:#1e40af
+    style GEN fill:#1e3a5f,color:#fff,stroke:#1e40af
+    style INTEL fill:#064e3b,color:#fff,stroke:#065f46
+    style LEADS fill:#064e3b,color:#fff,stroke:#065f46
+    style OUTREACH fill:#064e3b,color:#fff,stroke:#065f46
+    style C1 fill:#065f46,color:#fff,stroke:#047857
+    style C2 fill:#065f46,color:#fff,stroke:#047857
+    style C3 fill:#065f46,color:#fff,stroke:#047857
+    style C4 fill:#065f46,color:#fff,stroke:#047857
+    style C5 fill:#065f46,color:#fff,stroke:#047857
+    style C6 fill:#065f46,color:#fff,stroke:#047857
+    style C7 fill:#065f46,color:#fff,stroke:#047857
+    style O1 fill:#1e293b,color:#fff,stroke:#334155
+    style O2 fill:#1e293b,color:#fff,stroke:#334155
+    style O3 fill:#1e293b,color:#fff,stroke:#334155
+    style O4 fill:#1e293b,color:#fff,stroke:#334155
+    style E1 fill:#4c1d95,color:#fff,stroke:#5b21b6
+    style E2 fill:#4c1d95,color:#fff,stroke:#5b21b6
+    style E3 fill:#4c1d95,color:#fff,stroke:#5b21b6
