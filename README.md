@@ -1,6 +1,6 @@
 # ClientIQ
 
-ClientIQ is an AI-powered market intelligence and outreach engine built for the Google Cloud Rapid Agent Hackathon. A user submits a company name and one-line category, and the system orchestrates research, competitor mapping, decision-maker discovery, outreach drafting, and campaign planning through a Gemini-led workflow backed by MongoDB Atlas MCP.
+ClientIQ is an AI-powered market intelligence and outreach engine . A user submits a company name and one-line category, and the system orchestrates research, competitor mapping, decision-maker discovery, outreach drafting, and campaign planning through a Gemini-led workflow backed by MongoDB Atlas MCP.
 
 ## Stack
 
