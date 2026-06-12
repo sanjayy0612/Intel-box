@@ -1,47 +1,99 @@
-# ClientIQ
+# ClientIQ 🚧
 
-ClientIQ is an AI-powered market intelligence and outreach engine . A user submits a company name and one-line category, and the system orchestrates research, competitor mapping, decision-maker discovery, outreach drafting, and campaign planning through a Gemini-led workflow backed by MongoDB Atlas MCP.
+> **Status: Under Active Development**
+>
+> ClientIQ is currently in development and not yet production-ready. Features, APIs, workflows, and architecture may change as the project evolves.
 
-## Stack
+## Overview
 
-- Orchestrator: Google ADK with Gemini 2.5 Pro
-- Partner integration: MongoDB Atlas MCP Server
-- External tools: Exa Search API, Firecrawl API, Anthropic Claude API
-- Backend: Python + FastAPI
-- Frontend: React + Vite
+ClientIQ is an AI-powered market intelligence and outreach engine designed to automate company research, competitor analysis, decision-maker discovery, outreach generation, and campaign planning.
 
-## Repository Layout
+The platform orchestrates multiple AI models and data sources through a Gemini-led workflow, with MongoDB Atlas used for persistence and knowledge storage.
+
+## Current Progress
+
+### Implemented
+
+* Google ADK orchestration framework
+* Gemini 2.5 Pro integration
+* MongoDB Atlas MCP integration
+* FastAPI backend
+* React + Vite frontend
+* Research pipeline foundation
+* Report generation framework
+* Campaign planning workflow
+* Status tracking system
+
+### In Progress
+
+* End-to-end workflow refinement
+* Report quality improvements
+* Outreach personalization
+* Error handling and resiliency
+* Performance optimization
+* Deployment automation
+* Comprehensive test coverage
+
+### Planned
+
+* Multi-user support
+* Authentication and authorization
+* Advanced analytics dashboard
+* CRM integrations
+* Additional research providers
+* Campaign execution capabilities
+
+---
+
+## Tech Stack
+
+* **Orchestrator:** Google ADK + Gemini 2.5 Pro
+* **Database:** MongoDB Atlas via MCP
+* **Research Tools:** Exa Search, Firecrawl
+* **LLM Support:** Anthropic Claude
+* **Backend:** Python + FastAPI
+* **Frontend:** React + Vite
+
+---
+
+## Repository Structure
 
 ```text
 agent/        Google ADK orchestration and tool adapters
-api/          FastAPI routes for run, report, tracker, and health endpoints
-mcp/          MongoDB MCP client and repository operations
-models/       Pydantic contracts that define the shared data model
-pipeline/     Cache checking, orchestration handoff, and persistence flow
-output/       Markdown report and campaign playbook assembly helpers
-frontend/     React application with status stepper and report viewer
-docs/         Architecture, demo script, and schema documentation
-deployment/   Docker and Cloud Run deployment assets
-tests/        API, tool, and pipeline coverage
+api/          FastAPI routes and service endpoints
+mcp/          MongoDB MCP client integrations
+models/       Shared Pydantic data models
+pipeline/     Orchestration and persistence workflow
+output/       Report and playbook generation
+frontend/     React application
+docs/         Architecture and documentation
+deployment/   Deployment configurations
+tests/        Test suites
 ```
 
-## Quick Start
+---
+
+## Getting Started
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+
 cp .env.example .env
+
 uvicorn api.main:app --reload
 ```
 
-In a second terminal:
+Frontend:
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+---
 
 ## Environment Variables
 
@@ -55,26 +107,47 @@ MONGODB_URI=
 MONGODB_DATABASE=clientiq
 ```
 
-`MONGODB_MCP_SERVER_URL` is optional and defaults to `http://localhost:8001/mcp`.
+Optional:
 
-## Demo Flow
+```env
+MONGODB_MCP_SERVER_URL=http://localhost:8001/mcp
+```
 
-Run these three companies in sequence without code changes:
+---
 
-1. `Nike` — `sportswear`
-2. `Zepto` — `quick commerce`
-3. `Taj Hotels` — `hospitality`
+## Demo Targets
 
-Each run should return the same 10-section report structure, live run status, outreach context, and MongoDB-backed persistence.
+Current development testing uses:
+
+1. Nike — sportswear
+2. Zepto — quick commerce
+3. Taj Hotels — hospitality
+
+Expected output:
+
+* Market intelligence report
+* Competitor analysis
+* Outreach recommendations
+* Campaign planning artifacts
+* MongoDB-backed persistence
+
+---
 
 ## Deployment
 
-- Local container: [deployment/docker-compose.yml](/Users/sanjayelango/Desktop/dev_me/MIE-agent-/deployment/docker-compose.yml)
-- Cloud Run build: [deployment/cloudbuild.yaml](/Users/sanjayelango/Desktop/dev_me/MIE-agent-/deployment/cloudbuild.yaml)
-- Architecture doc: [docs/architecture.md](/Users/sanjayelango/Desktop/dev_me/MIE-agent-/docs/architecture.md)
+Deployment assets are included but should be considered experimental until the first stable release.
 
-Hosted demo URL for submission: `TODO`
+* Docker Compose configuration
+* Cloud Run deployment configuration
+* Architecture documentation
+
+---
+
+## Disclaimer
+
+This project is under active development. Functionality may be incomplete, unstable, or subject to change without notice. APIs and data schemas should not yet be considered stable.
 
 ## License
 
 MIT
+
