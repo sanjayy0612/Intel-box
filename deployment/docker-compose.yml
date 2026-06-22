@@ -1,10 +1,4 @@
 services:
-
-  api:
-    build: .
-    ports:
-      - "8000:8000"
-
   searxng:
     image: searxng/searxng:latest
     container_name: searxng
