@@ -1,11 +1,12 @@
-version: "3.9"
-
 services:
+
   api:
-    build:
-      context: ..
-      dockerfile: deployment/Dockerfile
-    env_file:
-      - ../.env
+    build: .
     ports:
       - "8000:8000"
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    ports:
+      - "8080:8080"
