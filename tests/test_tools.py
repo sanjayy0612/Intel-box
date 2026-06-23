@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+from unittest.mock import Mock
 
 from agent.tools import claude_analyst, competitor_search, firecrawl_scrape, linkedin_search, web_search
 
 
-def test_web_search_contract() -> None:
+def test_web_search_contract(monkeypatch) -> None:
+    monkeypatch.setattr(web_search.requests, "get", Mock(return_value=Mock(text="stub result", raise_for_status=Mock())))
     result = asyncio.run(web_search.run({"query": "Nike company overview", "company": "Nike"}))
     assert "summary" in result
     assert "sources" in result
