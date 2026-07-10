@@ -1,39 +1,66 @@
-/** Live run-status stepper for the ClientIQ frontend. */
+/** Live research trace: shows exactly which tools the agent chose to call, in order. */
 
 import React from "react";
-
-const colors = {
-  pending: "#94a3b8",
-  running: "#fcd34d",
-  completed: "#34d399",
-  failed: "#f87171",
-};
+import { card, color, statusColor } from "../styles/theme";
 
 export default function StatusStepper({ steps, status, error }) {
   return (
-    <section style={{ background: "rgba(15, 23, 42, 0.72)", borderRadius: 24, padding: 24 }}>
-      <h2 style={{ marginTop: 0 }}>Run Status</h2>
-      <p style={{ color: "#cbd5e1" }}>Current status: {status || "idle"}</p>
-      <div style={{ display: "grid", gap: 12 }}>
-        {steps.map((step) => (
-          <div
-            key={step.key}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 12,
-              borderRadius: 14,
-              padding: 14,
-              background: "rgba(255,255,255,0.05)",
-              borderLeft: `4px solid ${colors[step.status] || colors.pending}`,
-            }}
-          >
-            <span>{step.label}</span>
-            <span style={{ color: colors[step.status] || colors.pending }}>{step.status}</span>
-          </div>
-        ))}
+    <section style={card}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 18 }}>
+        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Research trace</h2>
+        <span style={{ fontSize: 13, color: color.textMuted }}>{status || "idle"}</span>
       </div>
-      {error ? <p style={{ color: "#fca5a5" }}>{error}</p> : null}
+
+      {steps.length === 0 ? (
+        <p style={{ margin: 0, color: color.textMuted, fontSize: 14 }}>
+          Nothing has run yet. The agent will pick its own tools once you start a run.
+        </p>
+      ) : (
+        <div style={{ display: "grid", gap: 10 }}>
+          {steps.map((step) => {
+            const tone = statusColor[step.status] || statusColor.pending;
+            return (
+              <div
+                key={step.key}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 16,
+                  alignItems: "center",
+                  borderRadius: 10,
+                  padding: "12px 16px",
+                  background: color.bgMuted,
+                  borderLeft: `3px solid ${tone.fg}`,
+                }}
+              >
+                <div style={{ display: "grid", gap: 2 }}>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>{step.label}</span>
+                  {step.detail ? (
+                    <span style={{ fontSize: 12.5, color: color.textMuted }}>{step.detail}</span>
+                  ) : null}
+                </div>
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: tone.fg,
+                    background: tone.bg,
+                    borderRadius: 999,
+                    padding: "4px 10px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {step.status}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {error ? (
+        <p style={{ color: color.danger, marginTop: 16, marginBottom: 0, fontSize: 14 }}>{error}</p>
+      ) : null}
     </section>
   );
 }

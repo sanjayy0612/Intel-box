@@ -1,14 +1,7 @@
-/** Input form for starting a new ClientIQ run. */
+/** Input form for starting a new IntelBox run. */
 
 import React, { useState } from "react";
-
-const cardStyle = {
-  background: "rgba(15, 23, 42, 0.72)",
-  border: "1px solid rgba(252, 211, 77, 0.25)",
-  borderRadius: 24,
-  padding: 24,
-  backdropFilter: "blur(18px)",
-};
+import { card, color } from "../styles/theme";
 
 export default function InputForm({ onSubmit, loading }) {
   const [company, setCompany] = useState("Nike");
@@ -16,43 +9,70 @@ export default function InputForm({ onSubmit, loading }) {
 
   return (
     <form
-      style={{ ...cardStyle, display: "grid", gap: 16 }}
+      style={{
+        ...card,
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr auto",
+        gap: 16,
+        alignItems: "end",
+      }}
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit({ company, category });
       }}
     >
       <div style={{ display: "grid", gap: 8 }}>
-        <label htmlFor="company">Company</label>
+        <label htmlFor="company" style={{ fontSize: 13, fontWeight: 600, color: color.textSecondary }}>
+          Company
+        </label>
         <input
           id="company"
           value={company}
           onChange={(event) => setCompany(event.target.value)}
-          style={{ padding: 14, borderRadius: 12, border: "none" }}
+          style={{
+            padding: "12px 14px",
+            borderRadius: 10,
+            border: `1px solid ${color.border}`,
+            fontSize: 15,
+            color: color.text,
+            background: color.bg,
+          }}
         />
       </div>
       <div style={{ display: "grid", gap: 8 }}>
-        <label htmlFor="category">Category</label>
+        <label htmlFor="category" style={{ fontSize: 13, fontWeight: 600, color: color.textSecondary }}>
+          Category
+        </label>
         <input
           id="category"
           value={category}
           onChange={(event) => setCategory(event.target.value)}
-          style={{ padding: 14, borderRadius: 12, border: "none" }}
+          style={{
+            padding: "12px 14px",
+            borderRadius: 10,
+            border: `1px solid ${color.border}`,
+            fontSize: 15,
+            color: color.text,
+            background: color.bg,
+          }}
         />
       </div>
       <button
         type="submit"
         disabled={loading}
         style={{
-          padding: "14px 18px",
-          borderRadius: 999,
+          padding: "13px 22px",
+          borderRadius: 10,
           border: "none",
-          background: "#fcd34d",
-          color: "#0f172a",
-          fontWeight: 700,
+          background: loading ? color.textMuted : color.accent,
+          color: "#fff",
+          fontWeight: 600,
+          fontSize: 15,
+          cursor: loading ? "default" : "pointer",
+          whiteSpace: "nowrap",
         }}
       >
-        {loading ? "Running..." : "Run ClientIQ"}
+        {loading ? "Running..." : "Run IntelBox"}
       </button>
     </form>
   );

@@ -2,14 +2,7 @@
 
 import React from "react";
 import ReactMarkdown from "react-markdown";
-
-const panelStyle = {
-  background: "rgba(255,255,255,0.92)",
-  color: "#0f172a",
-  borderRadius: 24,
-  padding: 24,
-  minHeight: 480,
-};
+import { card, color } from "../styles/theme";
 
 export default function ReportViewer({ report, company }) {
   const downloadReport = () => {
@@ -18,25 +11,38 @@ export default function ReportViewer({ report, company }) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${(company || "clientiq-report").toLowerCase().replace(/\s+/g, "-")}.md`;
+    link.download = `${(company || "intelbox-report").toLowerCase().replace(/\s+/g, "-")}.md`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
   return (
-    <section style={panelStyle}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-        <h2 style={{ marginTop: 0 }}>Intelligence Brief</h2>
+    <section style={{ ...card, minHeight: 480 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 12 }}>
+        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Intelligence brief</h2>
         <button
           type="button"
           onClick={downloadReport}
           disabled={!report}
-          style={{ borderRadius: 999, padding: "10px 14px", border: "1px solid #cbd5e1", background: "white" }}
+          style={{
+            borderRadius: 999,
+            padding: "8px 16px",
+            border: `1px solid ${color.border}`,
+            background: color.bg,
+            fontSize: 13,
+            fontWeight: 500,
+            color: report ? color.text : color.textMuted,
+            cursor: report ? "pointer" : "default",
+          }}
         >
           Download .md
         </button>
       </div>
-      {report ? <ReactMarkdown>{report}</ReactMarkdown> : <p>The generated report will appear here.</p>}
+      {report ? (
+        <ReactMarkdown>{report}</ReactMarkdown>
+      ) : (
+        <p style={{ color: color.textMuted, fontSize: 14 }}>The generated report will appear here.</p>
+      )}
     </section>
   );
 }

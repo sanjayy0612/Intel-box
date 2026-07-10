@@ -1,4 +1,4 @@
-/** Module entry point for the ClientIQ React app. */
+/** Module entry point for the IntelBox React app. */
 
 import React from "react";
 import ReactDOM from "react-dom/client";

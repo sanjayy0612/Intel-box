@@ -1,4 +1,4 @@
-/** Main React shell for collecting inputs and rendering ClientIQ outputs. */
+/** Main React shell for collecting inputs and rendering IntelBox outputs. */
 
 import React from "react";
 import InputForm from "./components/InputForm";
@@ -8,45 +8,85 @@ import CampaignPlaybook from "./components/CampaignPlaybook";
 import TrackerDashboard from "./components/TrackerDashboard";
 import StatusStepper from "./components/StatusStepper";
 import { useAgentRun } from "./hooks/useAgentRun";
+import { color, pageShell } from "./styles/theme";
 
-const shellStyle = {
-  minHeight: "100vh",
-  background:
-    "radial-gradient(circle at top, rgba(252,211,77,0.35), transparent 30%), linear-gradient(135deg, #0f172a, #134e4a 55%, #f8fafc 160%)",
-  color: "#e2e8f0",
-  fontFamily: "'IBM Plex Sans', 'Segoe UI', sans-serif",
-  padding: "32px 20px 48px",
-};
-
-const gridStyle = {
-  display: "grid",
-  gap: 20,
-  gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-  alignItems: "start",
-};
+const capabilities = [
+  { label: "Search", copy: "Broad web research on news, launches, and funding." },
+  { label: "Competitors", copy: "Maps direct competitors in the same category." },
+  { label: "People", copy: "Finds named decision-makers worth reaching out to." },
+  { label: "Analysis", copy: "Synthesizes everything into one intelligence brief." },
+];
 
 export default function App() {
   const { runState, loading, error, startRun } = useAgentRun();
 
   return (
-    <div style={shellStyle}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gap: 24 }}>
-        <header>
-          <p style={{ letterSpacing: "0.2em", textTransform: "uppercase", color: "#fcd34d" }}>
-            ClientIQ
+    <div style={pageShell}>
+      <div style={{ maxWidth: 1160, margin: "0 auto", padding: "56px 24px 80px" }}>
+        <header style={{ marginBottom: 48 }}>
+          <p
+            style={{
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: color.accent,
+              fontSize: 13,
+              fontWeight: 600,
+              margin: "0 0 16px",
+            }}
+          >
+            IntelBox
           </p>
-          <h1 style={{ fontSize: "clamp(2.4rem, 4vw, 4.8rem)", margin: "8px 0" }}>
-            Market intelligence and outreach, one run at a time.
+          <h1
+            style={{
+              fontSize: "clamp(2.4rem, 5vw, 4rem)",
+              lineHeight: 1.05,
+              letterSpacing: "-0.02em",
+              margin: "0 0 20px",
+              maxWidth: 780,
+              fontWeight: 600,
+            }}
+          >
+            Market intelligence, made even more useful.
           </h1>
-          <p style={{ maxWidth: 760, color: "#cbd5e1", lineHeight: 1.6 }}>
-            Submit any company and category, follow the live stepper, and download the final markdown brief when the run completes.
+          <p style={{ maxWidth: 620, color: color.textSecondary, lineHeight: 1.65, fontSize: 17, margin: 0 }}>
+            Give the agent a company and a category. It decides which research tools it actually
+            needs, runs them, and hands you back a brief and an outreach playbook.
           </p>
         </header>
 
-        <InputForm onSubmit={startRun} loading={loading} />
-        <StatusStepper steps={runState?.steps || []} status={runState?.status} error={error} />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: 1,
+            background: color.border,
+            border: `1px solid ${color.border}`,
+            borderRadius: 16,
+            overflow: "hidden",
+            marginBottom: 48,
+          }}
+        >
+          {capabilities.map((item) => (
+            <div key={item.label} style={{ background: color.bg, padding: "22px 24px" }}>
+              <p style={{ fontWeight: 600, margin: "0 0 6px", fontSize: 15 }}>{item.label}</p>
+              <p style={{ margin: 0, color: color.textMuted, fontSize: 13.5, lineHeight: 1.5 }}>{item.copy}</p>
+            </div>
+          ))}
+        </div>
 
-        <div style={gridStyle}>
+        <div style={{ display: "grid", gap: 24, marginBottom: 24 }}>
+          <InputForm onSubmit={startRun} loading={loading} />
+          <StatusStepper steps={runState?.steps || []} status={runState?.status} error={error} />
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gap: 20,
+            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            alignItems: "start",
+          }}
+        >
           <ReportViewer report={runState?.report_markdown} company={runState?.company} />
           <div style={{ display: "grid", gap: 20 }}>
             <CampaignPlaybook markdown={runState?.campaign_playbook_markdown} />

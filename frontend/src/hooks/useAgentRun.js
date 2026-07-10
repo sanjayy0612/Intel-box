@@ -1,4 +1,4 @@
-/** Polling hook for creating and tracking ClientIQ agent runs. */
+/** Polling hook for creating and tracking IntelBox agent runs. */
 
 import { useEffect, useRef, useState } from "react";
 
