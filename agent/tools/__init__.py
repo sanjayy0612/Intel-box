@@ -1,1 +1,1 @@
-"""Tool package for ClientIQ agent integrations."""
+"""Tool package for IntelBox agent integrations."""
