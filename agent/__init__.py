@@ -1,1 +1,1 @@
-"""ClientIQ Google ADK agent package."""
+"""IntelBox Google ADK agent package."""
