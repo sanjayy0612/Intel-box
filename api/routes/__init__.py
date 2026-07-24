@@ -1,1 +1,1 @@
-"""Route package for ClientIQ FastAPI endpoints."""
+"""Route package for IntelBox FastAPI endpoints."""

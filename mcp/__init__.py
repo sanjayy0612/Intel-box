@@ -1,1 +1,1 @@
-"""MongoDB MCP integration package for ClientIQ."""
+"""MongoDB MCP integration package for IntelBox."""

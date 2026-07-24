@@ -1,1 +1,1 @@
-"""FastAPI application package for ClientIQ."""
+"""FastAPI application package for IntelBox."""

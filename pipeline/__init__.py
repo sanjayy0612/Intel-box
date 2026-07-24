@@ -1,1 +1,1 @@
-"""Pipeline orchestration package for ClientIQ."""
+"""Pipeline orchestration package for IntelBox."""

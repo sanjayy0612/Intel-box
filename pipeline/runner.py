@@ -1,4 +1,4 @@
-"""End-to-end coordinator for ClientIQ runs from cache check to persistence."""
+"""End-to-end coordinator for IntelBox runs from cache check to persistence."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ import uuid
 from datetime import datetime
 from typing import Awaitable, Callable
 
-from agent.orchestrator import ClientIQOrchestrator
+from agent.orchestrator import IntelBoxOrchestrator
 from mcp.client import MongoMCPClient
-from mcp.operations import ClientIQRepository
+from mcp.operations import IntelBoxRepository
 from models import (
     AgentRunRecord,
     AgentStep,
@@ -18,21 +18,21 @@ from models import (
 StatusCallback = Callable[[AgentStep], Awaitable[None]]
 
 
-class ClientIQRunner:
+class IntelBoxRunner:
     """Coordinates cache lookup, agent execution, and MongoDB persistence."""
 
-    def __init__(self, repository: ClientIQRepository, orchestrator: ClientIQOrchestrator) -> None:
+    def __init__(self, repository: IntelBoxRepository, orchestrator: IntelBoxOrchestrator) -> None:
         self.repository = repository
         self.orchestrator = orchestrator
 
     @classmethod
-    async def create(cls) -> "ClientIQRunner":
+    async def create(cls) -> "IntelBoxRunner":
         """Create a runner with a managed MCP client and orchestrator."""
 
         client = MongoMCPClient()
         await client.__aenter__()
-        repository = ClientIQRepository(client)
-        orchestrator = ClientIQOrchestrator(repository=repository)
+        repository = IntelBoxRepository(client)
+        orchestrator = IntelBoxOrchestrator(repository=repository)
         return cls(repository=repository, orchestrator=orchestrator)
 
     async def run_company(

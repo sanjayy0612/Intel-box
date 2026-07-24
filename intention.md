@@ -1,6 +1,6 @@
-# INTENTION.md — ClientIQ v2
+# INTENTION.md — IntelBox v2
 
-> This document is the authoritative plan for the ClientIQ v2 rebuild. It replaces assumptions baked into the v1 codebase and should be treated as the source of truth before any new file is written.
+> This document is the authoritative plan for the IntelBox v2 rebuild. It replaces assumptions baked into the v1 codebase and should be treated as the source of truth before any new file is written.
 
 ---
 
@@ -80,7 +80,7 @@ searxng:
   volumes:
     - ./searxng:/etc/searxng
   networks:
-    - clientiq-net
+    - intelbox-net
 ```
 
 `searxng/settings.yml` must enable `formats: [html, json]` and set `limiter: false` for private deployment.
@@ -104,7 +104,7 @@ It also enables **multi-turn reasoning**: the agent can search for competitors, 
 Each tool becomes a Claude tool definition. Five tools in v2:
 
 ```python
-CLIENTIQ_TOOLS = [
+INTELBOX_TOOLS = [
     {
         "name": "web_search",
         "description": (
@@ -203,7 +203,7 @@ CLIENTIQ_TOOLS = [
 
 ### Agent loop implementation
 
-The loop replaces `ClientIQOrchestrator.run()`:
+The loop replaces `IntelBoxOrchestrator.run()`:
 
 ```python
 # pipeline/orchestrator.py (v2 sketch)
@@ -226,7 +226,7 @@ async def run(self, company: str, category: str) -> CompanyProfile:
             model="claude-sonnet-4-6",
             max_tokens=4096,
             system=AGENT_SYSTEM_PROMPT + "\n\n" + domain_context,
-            tools=CLIENTIQ_TOOLS,
+            tools=INTELBOX_TOOLS,
             messages=messages
         )
 
@@ -321,7 +321,7 @@ MARKET_INTELLIGENCE = MongoCollection(
 )
 ```
 
-The MCP operations layer gets two new methods on `ClientIQRepository`:
+The MCP operations layer gets two new methods on `IntelBoxRepository`:
 
 ```python
 async def save_market_intelligence(self, data: MarketIntelligence) -> None: ...
@@ -507,7 +507,7 @@ SEARXNG_URL=http://localhost:8080
 
 # ── Database ──────────────────────────────────
 MONGODB_URI=
-MONGODB_DATABASE=clientiq
+MONGODB_DATABASE=intelbox
 MONGODB_MCP_SERVER_URL=http://localhost:8001/mcp
 
 # ── App ───────────────────────────────────────
@@ -519,7 +519,7 @@ GOOGLE_CLOUD_PROJECT=
 ## What does not change
 
 - The `async def run(payload: dict) -> dict` contract on every tool — kept for testability.
-- MongoDB MCP architecture — `MongoMCPClient` and `ClientIQRepository` stay. Only new collection + methods added.
+- MongoDB MCP architecture — `MongoMCPClient` and `IntelBoxRepository` stay. Only new collection + methods added.
 - The 30-day cache-first check in `runner.py` — extended, not replaced.
 - The seven existing MongoDB collections — untouched. `market_intelligence` is additive.
 - FastAPI backend and React + Vite frontend structure.

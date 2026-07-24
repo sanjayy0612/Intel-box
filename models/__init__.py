@@ -1,4 +1,4 @@
-"""Convenience exports for ClientIQ Pydantic models."""
+"""Convenience exports for IntelBox Pydantic models."""
 
 from models.company import (
     BrandActivityItem,

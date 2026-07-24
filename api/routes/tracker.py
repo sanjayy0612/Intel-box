@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 
 from api.dependencies import get_repository
-from mcp.operations import ClientIQRepository
+from mcp.operations import IntelBoxRepository
 from models import OutreachTrackerEntry, TrackerUpdateRequest
 
 router = APIRouter(prefix="/track", tags=["tracker"])
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/track", tags=["tracker"])
 @router.post("")
 async def update_tracker(
     request: TrackerUpdateRequest,
-    repository: ClientIQRepository = Depends(get_repository),
+    repository: IntelBoxRepository = Depends(get_repository),
 ) -> dict:
     """Upsert an outreach tracker entry from the frontend dashboard."""
 

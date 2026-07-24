@@ -1,4 +1,4 @@
-"""FastAPI application that serves ClientIQ routes to the frontend."""
+"""FastAPI application that serves IntelBox routes to the frontend."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from api.routes.run import router as run_router
 from api.routes.search import router as search_router
 from api.routes.tracker import router as tracker_router
 
-app = FastAPI(title="ClientIQ API", version="0.1.0")
+app = FastAPI(title="IntelBox API", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

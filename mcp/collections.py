@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class CollectionDefinition:
-    """Simple metadata describing a MongoDB collection used by ClientIQ."""
+    """Simple metadata describing a MongoDB collection used by IntelBox."""
 
     name: str
     purpose: str

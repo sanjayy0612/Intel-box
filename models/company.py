@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, HttpUrl
 
 
 class CompanyRunRequest(BaseModel):
-    """User input needed to trigger a ClientIQ run."""
+    """User input needed to trigger a IntelBox run."""
 
     company: str = Field(min_length=1)
     category: str = Field(min_length=1)

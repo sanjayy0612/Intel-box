@@ -1,4 +1,4 @@
-"""Tests for the FastAPI routes exposed by ClientIQ."""
+"""Tests for the FastAPI routes exposed by IntelBox."""
 
 from __future__ import annotations
 

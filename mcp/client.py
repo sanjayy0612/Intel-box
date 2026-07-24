@@ -24,7 +24,7 @@ class MongoMCPClient:
         timeout: float = 30.0,
     ) -> None:
         self.base_url = base_url or os.getenv("MONGODB_MCP_SERVER_URL", "http://localhost:8001/mcp")
-        self.database = database or os.getenv("MONGODB_DATABASE", "clientiq")
+        self.database = database or os.getenv("MONGODB_DATABASE", "intelbox")
         self.timeout = timeout
         self._client: httpx.AsyncClient | None = None
         self._request_id = 0

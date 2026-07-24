@@ -1,4 +1,4 @@
-"""Routes for starting and polling ClientIQ agent runs."""
+"""Routes for starting and polling IntelBox agent runs."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from api.dependencies import get_run_store, get_runner
 from models import AgentRunRecord, AgentStep, CompanyRunRequest
-from pipeline.runner import ClientIQRunner
+from pipeline.runner import IntelBoxRunner
 
 router = APIRouter(prefix="/run", tags=["run"])
 
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/run", tags=["run"])
 @router.post("", response_model=AgentRunRecord)
 async def start_run(
     request: CompanyRunRequest,
-    runner: ClientIQRunner = Depends(get_runner),
+    runner: IntelBoxRunner = Depends(get_runner),
     run_store: dict[str, AgentRunRecord] = Depends(get_run_store),
 ) -> AgentRunRecord:
     """Start a new agent run and return the initial job record."""

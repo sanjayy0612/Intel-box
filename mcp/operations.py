@@ -26,8 +26,8 @@ from models import (
 )
 
 
-class ClientIQRepository:
-    """High-level persistence API for the ClientIQ pipeline."""
+class IntelBoxRepository:
+    """High-level persistence API for the IntelBox pipeline."""
 
     def __init__(self, client: MongoMCPClient) -> None:
         self.client = client

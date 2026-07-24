@@ -1,4 +1,4 @@
-# ClientIQ Architecture
+# IntelBox Architecture
 
 ```mermaid
 flowchart TD
