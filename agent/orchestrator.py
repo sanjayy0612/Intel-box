@@ -17,6 +17,7 @@ import os
 from datetime import datetime
 from typing import Any, Awaitable, Callable
 
+from agent.skills import load_skills
 from agent.tools import claude_analyst, competitor_search, firecrawl_scrape, linkedin_search, web_search
 from models import (
     AgentStep,
@@ -38,20 +39,19 @@ StatusCallback = Callable[[AgentStep], Awaitable[None]]
 MODEL = "claude-sonnet-4-20250514"
 MAX_TOOL_ITERATIONS = 6
 
-AGENT_SYSTEM_PROMPT = """You are IntelBox's research agent. You have four tools available: \
+AGENT_CORE_PROMPT = """You are IntelBox's research agent. You have four tools available: \
 web_search, linkedin_search, competitor_search, and scrape_url.
 
 Decide which tools this specific company and category actually require, and call them one at a \
-time -- never call a tool you don't need just because it exists. Examples:
-- A quick brand-perception check may only need web_search.
-- A full outreach-ready profile likely needs web_search, competitor_search, and linkedin_search.
-- Only call scrape_url when a specific URL surfaced by web_search or competitor_search needs \
-deeper reading than the search snippet gives you.
+time -- never call a tool you don't need just because it exists. Call tools one at a time so you \
+can react to what each result contains -- for example, noticing a competitor is acquiring a \
+startup and deciding to scrape that startup's site next. Once you have enough signal, stop \
+calling tools and reply with a short plain-text confirmation that research is complete.
 
-Call tools one at a time so you can react to what each result contains -- for example, noticing \
-a competitor is acquiring a startup and deciding to scrape that startup's site next. Once you have \
-enough signal to write a market intelligence brief, stop calling tools and reply with a short \
-plain-text confirmation that research is complete."""
+The sections below are your skills -- procedures for the two jobs this agent does: market \
+research and decision-maker outreach. Follow whichever ones apply to the task at hand."""
+
+AGENT_SYSTEM_PROMPT = f"{AGENT_CORE_PROMPT}\n\n{load_skills()}"
 
 INTELBOX_TOOLS = [
     {
