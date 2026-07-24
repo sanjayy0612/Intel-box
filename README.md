@@ -1,12 +1,12 @@
-# ClientIQ 🚧
+# IntelBox 🚧
 
 > **Status: Under Active Development**
 >
-> ClientIQ is currently in development and not yet production-ready. Features, APIs, workflows, and architecture may change as the project evolves.
+> IntelBox is currently in development and not yet production-ready. Features, APIs, workflows, and architecture may change as the project evolves.
 
 ## Overview
 
-ClientIQ is an AI-powered market intelligence and outreach engine designed to automate company research, competitor analysis, decision-maker discovery, outreach generation, and campaign planning.
+IntelBox is an AI-powered market intelligence and outreach engine designed to automate company research, competitor analysis, decision-maker discovery, outreach generation, and campaign planning.
 
 The platform orchestrates multiple AI models and data sources through a Gemini-led workflow, with MongoDB Atlas used for persistence and knowledge storage.
 
@@ -104,7 +104,7 @@ ANTHROPIC_API_KEY=
 EXA_API_KEY=
 FIRECRAWL_API_KEY=
 MONGODB_URI=
-MONGODB_DATABASE=clientiq
+MONGODB_DATABASE=intelbox
 ```
 
 Optional:
