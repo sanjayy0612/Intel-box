@@ -1,9 +1,9 @@
 """BYO-LLM: a provider-neutral interface the orchestrator talks to instead of one hardcoded SDK.
 
-Provider selection: set `LLM_PROVIDER` to "anthropic" or "openai" to force one. If unset, the
-first provider with an API key present wins (Anthropic checked first, for backward compatibility
-with existing deployments). Returns None if no provider is configured, so callers can fall back
-to a deterministic, non-agentic path.
+Provider selection: set `LLM_PROVIDER` to "anthropic", "openai", or "groq" to force one. If
+unset, the first provider with an API key present wins (checked in that order, Anthropic first
+for backward compatibility with existing deployments). Returns None if no provider is configured,
+so callers can fall back to a deterministic, non-agentic path.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ import os
 
 from agent.llm.base import ChatResponse, LLMClient, LLMConversation, ToolCall, ToolResult, ToolSpec
 
-_PROVIDERS = ("anthropic", "openai")
+_PROVIDERS = ("anthropic", "openai", "groq")
 
 
 def get_llm_client() -> LLMClient | None:
@@ -33,6 +33,13 @@ def get_llm_client() -> LLMClient | None:
             from agent.llm.openai_provider import OpenAIClient
 
             return OpenAIClient(api_key=api_key)
+
+    if provider == "groq" or (not provider and os.getenv("GROQ_API_KEY")):
+        api_key = os.getenv("GROQ_API_KEY")
+        if api_key:
+            from agent.llm.groq_provider import GroqClient
+
+            return GroqClient(api_key=api_key)
 
     return None
 

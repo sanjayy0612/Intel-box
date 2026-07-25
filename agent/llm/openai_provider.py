@@ -16,10 +16,14 @@ DEFAULT_MODEL = "gpt-4o"
 
 
 class OpenAIClient:
-    """LLMClient implementation backed by the OpenAI Chat Completions API."""
+    """LLMClient implementation backed by the OpenAI Chat Completions API.
 
-    def __init__(self, api_key: str, model: str = DEFAULT_MODEL) -> None:
-        self._client = AsyncOpenAI(api_key=api_key)
+    `base_url` lets other OpenAI-compatible providers (e.g. Groq) reuse this adapter's wire
+    format instead of duplicating translation logic -- see agent/llm/groq_provider.py.
+    """
+
+    def __init__(self, api_key: str, model: str = DEFAULT_MODEL, base_url: str | None = None) -> None:
+        self._client = AsyncOpenAI(api_key=api_key, base_url=base_url)
         self._model = model
 
     async def complete_text(self, *, system: str, prompt: str, max_tokens: int = 4000) -> str:
