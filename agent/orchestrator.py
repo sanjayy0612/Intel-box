@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from datetime import datetime
 from typing import Any, Awaitable, Callable
 
+from agent.llm import ToolResult, ToolSpec, get_llm_client
 from agent.skills import load_skills
 from agent.tools import claude_analyst, competitor_search, firecrawl_scrape, linkedin_search, web_search
 from models import (
@@ -29,14 +29,8 @@ from models import (
     OutreachDraft,
 )
 
-try:
-    from anthropic import AsyncAnthropic
-except ImportError:  # pragma: no cover - dependency may be absent in minimal environments
-    AsyncAnthropic = None
-
 StatusCallback = Callable[[AgentStep], Awaitable[None]]
 
-MODEL = "claude-sonnet-4-20250514"
 MAX_TOOL_ITERATIONS = 6
 
 AGENT_CORE_PROMPT = """You are IntelBox's research agent. You have four tools available: \
@@ -54,25 +48,25 @@ research and decision-maker outreach. Follow whichever ones apply to the task at
 AGENT_SYSTEM_PROMPT = f"{AGENT_CORE_PROMPT}\n\n{load_skills()}"
 
 INTELBOX_TOOLS = [
-    {
-        "name": "web_search",
-        "description": (
+    ToolSpec(
+        name="web_search",
+        description=(
             "Search the web for company news, brand perception, product launches, funding "
             "events, and general market information. Use for broad research."
         ),
-        "input_schema": {
+        parameters={
             "type": "object",
             "properties": {"query": {"type": "string", "description": "Search query string"}},
             "required": ["query"],
         },
-    },
-    {
-        "name": "linkedin_search",
-        "description": (
+    ),
+    ToolSpec(
+        name="linkedin_search",
+        description=(
             "Find named decision-makers, executives, and employees at the company on LinkedIn. "
             "Only call this if the task requires identifying people for outreach."
         ),
-        "input_schema": {
+        parameters={
             "type": "object",
             "properties": {
                 "roles": {
@@ -83,28 +77,28 @@ INTELBOX_TOOLS = [
             },
             "required": [],
         },
-    },
-    {
-        "name": "competitor_search",
-        "description": (
+    ),
+    ToolSpec(
+        name="competitor_search",
+        description=(
             "Find direct competitors of the company in its product/service category. "
             "Returns names, URLs, and brief descriptions."
         ),
-        "input_schema": {"type": "object", "properties": {}, "required": []},
-    },
-    {
-        "name": "scrape_url",
-        "description": (
+        parameters={"type": "object", "properties": {}, "required": []},
+    ),
+    ToolSpec(
+        name="scrape_url",
+        description=(
             "Scrape full text content from a specific URL, such as the company's own site or a "
             "news article surfaced by web_search or competitor_search. Use this only when the "
             "snippet from a search result isn't enough detail."
         ),
-        "input_schema": {
+        parameters={
             "type": "object",
             "properties": {"url": {"type": "string"}},
             "required": ["url"],
         },
-    },
+    ),
 ]
 
 
@@ -113,8 +107,7 @@ class IntelBoxOrchestrator:
 
     def __init__(self, repository: Any) -> None:
         self.repository = repository
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        self.client = AsyncAnthropic(api_key=api_key) if api_key and AsyncAnthropic else None
+        self.llm = get_llm_client()
 
     async def run(
         self,
@@ -131,7 +124,7 @@ class IntelBoxOrchestrator:
         company_id = hashlib.sha1(f"{company}:{category}".encode("utf-8")).hexdigest()[:16]
 
         collected: dict[str, dict[str, Any]] = {}
-        if self.client is not None:
+        if self.llm is not None:
             collected = await self._run_agent_loop(company, category, emit)
         else:
             collected = await self._run_deterministic_fallback(company, category, emit)
@@ -233,36 +226,24 @@ class IntelBoxOrchestrator:
         category: str,
         emit: Callable[[AgentStep], Awaitable[None]],
     ) -> dict[str, dict[str, Any]]:
-        """Run the tool-calling loop, letting Claude pick tools one at a time."""
+        """Run the tool-calling loop, letting the configured LLM pick tools one at a time."""
 
         collected: dict[str, dict[str, Any]] = {}
-        messages: list[dict[str, Any]] = [
-            {
-                "role": "user",
-                "content": (
-                    f"Research {company} in the {category} category and gather what's needed "
-                    "for a market intelligence brief. Only call the tools this specific task needs."
-                ),
-            }
-        ]
+        conversation = self.llm.start_conversation(
+            system=AGENT_SYSTEM_PROMPT, tools=INTELBOX_TOOLS, max_tokens=1024
+        )
+
+        response = await conversation.send_user_message(
+            f"Research {company} in the {category} category and gather what's needed "
+            "for a market intelligence brief. Only call the tools this specific task needs."
+        )
 
         for _ in range(MAX_TOOL_ITERATIONS):
-            response = await self.client.messages.create(
-                model=MODEL,
-                max_tokens=1024,
-                system=AGENT_SYSTEM_PROMPT,
-                tools=INTELBOX_TOOLS,
-                messages=messages,
-            )
-
-            tool_calls = [block for block in response.content if getattr(block, "type", "") == "tool_use"]
-            if not tool_calls:
+            if not response.tool_calls:
                 break
 
-            messages.append({"role": "assistant", "content": response.content})
-            tool_outputs = []
-
-            for call in tool_calls:
+            tool_results = []
+            for call in response.tool_calls:
                 step_key = f"tool-{len(collected)}-{call.name}-{call.id[-6:]}"
                 label = f"Calling {call.name}"
                 await emit(
@@ -291,18 +272,12 @@ class IntelBoxOrchestrator:
                         )
                     )
 
-                tool_outputs.append(
-                    {
-                        "type": "tool_result",
-                        "tool_use_id": call.id,
-                        "content": json.dumps(result)[:4000],
-                    }
-                )
-
-            messages.append({"role": "user", "content": tool_outputs})
+                tool_results.append(ToolResult(tool_call_id=call.id, output=result))
 
             if response.stop_reason == "end_turn":
                 break
+
+            response = await conversation.send_tool_results(tool_results)
 
         return collected
 
