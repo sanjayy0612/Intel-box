@@ -1,0 +1,9 @@
+# Layered on top of the image's default settings.yml (use_default_settings: true merges these
+# keys in). The JSON output format is disabled by default in upstream SearXNG -- web_search.py
+# requires it to get structured, parseable results instead of scraping HTML.
+use_default_settings: true
+
+search:
+  formats:
+    - html
+    - json
