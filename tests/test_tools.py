@@ -9,10 +9,20 @@ from agent.tools import claude_analyst, competitor_search, firecrawl_scrape, lin
 
 
 def test_web_search_contract(monkeypatch) -> None:
-    monkeypatch.setattr(web_search.requests, "get", Mock(return_value=Mock(text="stub result", raise_for_status=Mock())))
+    fake_response = Mock(
+        raise_for_status=Mock(),
+        json=Mock(
+            return_value={
+                "results": [
+                    {"title": "Nike overview", "content": "Nike makes sportswear.", "url": "https://nike.com"}
+                ]
+            }
+        ),
+    )
+    monkeypatch.setattr(web_search.requests, "get", Mock(return_value=fake_response))
     result = asyncio.run(web_search.run({"query": "Nike company overview", "company": "Nike"}))
     assert "summary" in result
-    assert "sources" in result
+    assert result["sources"] == ["https://nike.com"]
 
 
 def test_linkedin_search_contract() -> None:
