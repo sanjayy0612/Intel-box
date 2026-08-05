@@ -116,25 +116,60 @@ Full diagram and notes: [`docs/architecture.md`](docs/architecture.md).
 
 ## Quick start
 
-### Backend
-
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env   # then fill in at least one LLM key
-
-uvicorn api.main:app --reload
+./dev.sh
 ```
 
-### Frontend
+That's the whole thing. It creates `.env` and a `.venv`, installs Python and npm
+dependencies, generates the SearXNG secret, starts MongoDB and SearXNG in Docker, then
+runs the MCP server, the API, and the frontend — waiting for each to answer before moving
+on. Ctrl-C stops the local processes.
+
+```
+  ✓ mongodb        :27017
+  ✓ searxng        :8080
+  ✓ mcp server     :8001
+  ✓ api            :8000
+  ✓ frontend       :5173
+
+  http://localhost:5173
+```
+
+Add an LLM key to `.env` before the first run if you want the agent to actually choose its
+tools; without one it calls all four and the UI says so.
+
+| Command | What it does |
+|---|---|
+| `./dev.sh` | Start everything |
+| `./dev.sh --stop` | Stop everything, containers included. Data is kept |
+| `./dev.sh --fixtures` | Frontend only, no backend or Docker — for design work |
+
+Logs go to `.dev-logs/`.
+
+### Running the pieces by hand
 
 ```bash
-cd frontend
-npm install
-npm run dev
+docker compose -f deployment/docker-compose.yml up -d mongo searxng
+set -a; source .env; set +a
+.venv/bin/uvicorn deployment.mcp_server.server:app --port 8001   # MCP server
+.venv/bin/uvicorn api.main:app --reload --port 8000              # API
+cd frontend && npm run dev                                       # UI
 ```
+
+Note that nothing calls `load_dotenv`, so `.env` has to be exported into the shell —
+`dev.sh` does this for you.
+
+### Design system
+
+The UI is built to [`docs/design-system.md`](docs/design-system.md). Read that before
+changing anything visual — it's the source of truth for color, type, spacing, and copy,
+and it records which of its own rules were amended and why.
+
+**Design mode.** Set `VITE_USE_FIXTURES=1` in `frontend/.env` and the whole UI runs against
+`src/fixtures/` instead of a live backend — including a scripted run that replays against the
+wall clock, so live, failed, skipped, cached, and fallback states are all reachable without
+SearXNG, MongoDB, or an LLM key. It's on by default in `.env.example`; unset it to talk to a
+real API.
 
 ### Local dependencies for a full end-to-end run
 

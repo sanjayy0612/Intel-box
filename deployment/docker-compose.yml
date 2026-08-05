@@ -1,4 +1,16 @@
 services:
+  mongo:
+    image: mongo:7
+    container_name: intelbox-mongo
+    ports:
+      - "27017:27017"
+    # Bind-mounted rather than a named volume so the database lives beside the
+    # repo instead of under /var/lib/docker, which on a split-partition install
+    # is usually the small one.
+    volumes:
+      - ./data/mongo:/data/db
+    restart: unless-stopped
+
   api:
     build:
       context: ..
@@ -17,4 +29,9 @@ services:
       - "8080:8080"
     volumes:
       - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    # SearXNG refuses to start while server.secret_key is still the upstream
+    # placeholder, so SEARXNG_SECRET has to be set. It lives in the project .env
+    # rather than in this file, which is committed.
+    env_file:
+      - ../.env
     restart: unless-stopped

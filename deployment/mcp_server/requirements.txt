@@ -1,0 +1,5 @@
+# Dependencies for the local MongoDB MCP server only -- kept out of the app's
+# requirements.txt because nothing in agent/, api/, or pipeline/ imports pymongo.
+fastapi==0.140.13
+uvicorn[standard]==0.51.0
+pymongo==4.17.0
