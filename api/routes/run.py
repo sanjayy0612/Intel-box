@@ -37,23 +37,11 @@ async def start_run(
     )
 
     async def status_callback(step: AgentStep) -> None:
-        record = run_store[run_id]
-        record.updated_at = datetime.utcnow()
-        matched = False
-        for existing in record.steps:
-            if existing.key == step.key:
-                existing.status = step.status
-                existing.detail = step.detail
-                existing.updated_at = step.updated_at
-                matched = True
-        if not matched:
-            record.steps.append(step)
+        run_store[run_id].apply_step(step)
 
     async def execute() -> None:
         try:
             result = await runner.run_company(request, status_callback=status_callback)
-            result.run_id = run_id
-            run_store[run_id] = result
         except Exception as exc:  # noqa: BLE001
             failed = run_store[run_id]
             failed.status = "failed"
@@ -62,6 +50,19 @@ async def start_run(
                 if step.status == "running":
                     step.status = "failed"
                     step.detail = str(exc)
+            return
+
+        # The store record is the source of truth -- it already holds every step
+        # merged by key. Copy the run's outcome onto it rather than replacing it,
+        # which would drop the scaffold steps and duplicate the merged ones.
+        record = run_store[run_id]
+        for step in result.steps:
+            record.apply_step(step)
+        record.status = result.status
+        record.fallback_mode = result.fallback_mode
+        record.report_markdown = result.report_markdown
+        record.campaign_playbook_markdown = result.campaign_playbook_markdown
+        record.updated_at = datetime.utcnow()
 
     asyncio.create_task(execute())
     return run_store[run_id]

@@ -3,16 +3,27 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, HttpUrl
 
 
 class CompanyRunRequest(BaseModel):
-    """User input needed to trigger a IntelBox run."""
+    """User input needed to trigger a IntelBox run.
+
+    Beyond company and category, the caller controls the scope of the run:
+    how hard to look, whether people matter for this task, and whether a
+    cached profile may be used at all.
+    """
 
     company: str = Field(min_length=1)
     category: str = Field(min_length=1)
+    depth: Literal["quick", "standard", "deep"] = "standard"
+    # When false, linkedin_search isn't offered to the agent at all -- a tool it
+    # can't see is a tool it can't waste a call on.
+    find_people: bool = True
+    # Bypass the cache and research again even if a fresh profile exists.
+    force_refresh: bool = False
 
 
 class SourceRecord(BaseModel):

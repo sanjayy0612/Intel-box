@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
+import time
 from datetime import datetime
 from typing import Any, Awaitable, Callable
 
@@ -33,6 +35,21 @@ StatusCallback = Callable[[AgentStep], Awaitable[None]]
 
 MAX_TOOL_ITERATIONS = 6
 
+# What "research depth" on the new-research form actually changes. It steers the
+# agent rather than hardcoding a tool count -- the whole point is that the model
+# decides, and a depth setting that forced a fixed fan-out would undo that.
+DEPTH_GUIDANCE = {
+    "quick": (
+        "This is a quick check: stop as soon as you have a defensible read on the "
+        "company, usually after a single search."
+    ),
+    "standard": "Gather what this company actually requires -- no more, no less.",
+    "deep": (
+        "This is a deep profile: map the competitive set properly, and read source "
+        "pages directly where a search snippet leaves real ambiguity."
+    ),
+}
+
 AGENT_CORE_PROMPT = """You are IntelBox's research agent. You have four tools available: \
 web_search, linkedin_search, competitor_search, and scrape_url.
 
@@ -41,6 +58,14 @@ time -- never call a tool you don't need just because it exists. Call tools one 
 can react to what each result contains -- for example, noticing a competitor is acquiring a \
 startup and deciding to scrape that startup's site next. Once you have enough signal, stop \
 calling tools and reply with a short plain-text confirmation that research is complete.
+
+In that final message, account for every tool you did not call. Write one line per unused tool, \
+in exactly this format and nothing else on the line:
+
+SKIPPED: tool_name -- one short sentence explaining why it wasn't needed
+
+The user sees these lines. They are the evidence that you reasoned about the task rather than \
+running everything by default, so be specific about what made each tool unnecessary.
 
 The sections below are your skills -- procedures for the two jobs this agent does: market \
 research and decision-maker outreach. Follow whichever ones apply to the task at hand."""
@@ -114,6 +139,8 @@ class IntelBoxOrchestrator:
         company: str,
         category: str,
         status_callback: StatusCallback | None = None,
+        depth: str = "standard",
+        find_people: bool = True,
     ) -> dict[str, Any]:
         """Let the agent choose which tools to call, then synthesize and persist."""
 
@@ -123,11 +150,16 @@ class IntelBoxOrchestrator:
 
         company_id = hashlib.sha1(f"{company}:{category}".encode("utf-8")).hexdigest()[:16]
 
+        fallback_mode = self.llm is None
         collected: dict[str, dict[str, Any]] = {}
-        if self.llm is not None:
-            collected = await self._run_agent_loop(company, category, emit)
+        if fallback_mode:
+            collected = await self._run_deterministic_fallback(
+                company, category, emit, find_people=find_people
+            )
         else:
-            collected = await self._run_deterministic_fallback(company, category, emit)
+            collected = await self._run_agent_loop(
+                company, category, emit, depth=depth, find_people=find_people
+            )
 
         web_data = collected.get("web_search") or {"summary": "No web research was run for this company.", "sources": []}
         linkedin_data = collected.get("linkedin_search") or {"people": []}
@@ -216,6 +248,7 @@ class IntelBoxOrchestrator:
         ]
         await self.repository.save_outreach_drafts(drafts)
 
+        analyst_result["fallback_mode"] = fallback_mode
         return analyst_result
 
     # -- agent-driven path ------------------------------------------------
@@ -225,17 +258,22 @@ class IntelBoxOrchestrator:
         company: str,
         category: str,
         emit: Callable[[AgentStep], Awaitable[None]],
+        depth: str = "standard",
+        find_people: bool = True,
     ) -> dict[str, dict[str, Any]]:
         """Run the tool-calling loop, letting the configured LLM pick tools one at a time."""
 
         collected: dict[str, dict[str, Any]] = {}
+        called: list[str] = []
+        tools = self._tools_for(find_people)
         conversation = self.llm.start_conversation(
-            system=AGENT_SYSTEM_PROMPT, tools=INTELBOX_TOOLS, max_tokens=1024
+            system=AGENT_SYSTEM_PROMPT, tools=tools, max_tokens=1024
         )
 
         response = await conversation.send_user_message(
             f"Research {company} in the {category} category and gather what's needed "
-            "for a market intelligence brief. Only call the tools this specific task needs."
+            f"for a market intelligence brief. {DEPTH_GUIDANCE[depth]} "
+            "Only call the tools this specific task needs."
         )
 
         for _ in range(MAX_TOOL_ITERATIONS):
@@ -244,31 +282,47 @@ class IntelBoxOrchestrator:
 
             tool_results = []
             for call in response.tool_calls:
-                step_key = f"tool-{len(collected)}-{call.name}-{call.id[-6:]}"
-                label = f"Calling {call.name}"
+                # The index is part of the record the user reads, so it counts calls,
+                # not distinct tools -- an agent that searches twice shows two rows.
+                step_key = f"tool-{len(called)}-{call.name}-{call.id[-6:]}"
+                called.append(call.name)
                 await emit(
                     AgentStep(
                         key=step_key,
-                        label=label,
+                        label=call.name,
                         status="running",
                         detail=self._describe_input(call.name, call.input),
+                        kind="tool",
+                        tool_name=call.name,
                     )
                 )
+                started = time.perf_counter()
                 try:
                     result = await self._dispatch_tool(call.name, call.input, company, category)
                 except Exception as exc:  # noqa: BLE001
                     result = {"error": str(exc)}
                     await emit(
-                        AgentStep(key=step_key, label=label, status="failed", detail=str(exc))
+                        AgentStep(
+                            key=step_key,
+                            label=call.name,
+                            status="failed",
+                            detail=str(exc),
+                            kind="tool",
+                            tool_name=call.name,
+                            duration_ms=self._elapsed_ms(started),
+                        )
                     )
                 else:
                     collected[call.name] = result
                     await emit(
                         AgentStep(
                             key=step_key,
-                            label=label,
+                            label=call.name,
                             status="completed",
                             detail=self._summarize_result(call.name, result),
+                            kind="tool",
+                            tool_name=call.name,
+                            duration_ms=self._elapsed_ms(started),
                         )
                     )
 
@@ -279,7 +333,64 @@ class IntelBoxOrchestrator:
 
             response = await conversation.send_tool_results(tool_results)
 
+        await self._emit_skips(response.text, called, emit, tools)
         return collected
+
+    @staticmethod
+    def _tools_for(find_people: bool) -> list[ToolSpec]:
+        """The tools the agent is allowed to see for this run."""
+
+        if find_people:
+            return INTELBOX_TOOLS
+        return [spec for spec in INTELBOX_TOOLS if spec.name != "linkedin_search"]
+
+    async def _emit_skips(
+        self,
+        final_text: str,
+        called: list[str],
+        emit: Callable[[AgentStep], Awaitable[None]],
+        tools: list[ToolSpec],
+    ) -> None:
+        """Record the tools the agent declined, with its stated reason for each.
+
+        Most products hide this. Surfacing it is the visible proof that the agent
+        reasoned about the task instead of fanning out over every tool it has.
+        """
+
+        reasons = self._parse_skip_reasons(final_text)
+        for index, spec in enumerate(tools):
+            if spec.name in called:
+                continue
+            await emit(
+                AgentStep(
+                    key=f"skip-{index}-{spec.name}",
+                    label=spec.name,
+                    status="skipped",
+                    detail=reasons.get(spec.name),
+                    kind="tool",
+                    tool_name=spec.name,
+                )
+            )
+
+    @staticmethod
+    def _parse_skip_reasons(final_text: str) -> dict[str, str]:
+        """Pull `SKIPPED: tool_name -- reason` lines out of the agent's closing message."""
+
+        pattern = re.compile(
+            r"^\s*SKIPPED:\s*(?P<tool>[A-Za-z_][A-Za-z0-9_]*)\s*(?:--|—|–|-|:)\s*(?P<reason>.+?)\s*$",
+            re.IGNORECASE | re.MULTILINE,
+        )
+        known = {spec.name for spec in INTELBOX_TOOLS}
+        reasons: dict[str, str] = {}
+        for match in pattern.finditer(final_text or ""):
+            tool = match.group("tool").lower()
+            if tool in known:
+                reasons[tool] = match.group("reason")
+        return reasons
+
+    @staticmethod
+    def _elapsed_ms(started: float) -> int:
+        return int((time.perf_counter() - started) * 1000)
 
     async def _dispatch_tool(
         self, name: str, tool_input: dict[str, Any], company: str, category: str
@@ -329,33 +440,66 @@ class IntelBoxOrchestrator:
         company: str,
         category: str,
         emit: Callable[[AgentStep], Awaitable[None]],
+        find_people: bool = True,
     ) -> dict[str, dict[str, Any]]:
-        """Without an agent available, fall back to calling every tool once."""
+        """Without an agent available, fall back to calling every tool once.
 
-        await emit(
-            AgentStep(
-                key="fallback",
-                label="No ANTHROPIC_API_KEY set -- running all research tools",
-                status="running",
-            )
-        )
-        collected = {
-            "web_search": await web_search.run(
-                {"query": f"{company} company overview recent news", "company": company}
-            ),
-            "linkedin_search": await linkedin_search.run(
-                {"company": company, "roles": ["CMO", "VP Marketing", "Head of Partnerships", "Growth Lead"]}
-            ),
-            "competitor_search": await competitor_search.run({"company": company, "category": category}),
-            "scrape_url": await firecrawl_scrape.run(
-                {"url": f"https://www.{company.lower().replace(' ', '')}.com", "company": company}
-            ),
+        Each call still emits its own step so the log stays a real record, but the
+        run is flagged `fallback_mode` so the UI can say plainly that nothing was
+        chosen. A fallback must never masquerade as agentic behavior.
+        """
+
+        default_inputs: dict[str, dict[str, Any]] = {
+            "web_search": {"query": f"{company} company overview recent news"},
+            "linkedin_search": {
+                "roles": ["CMO", "VP Marketing", "Head of Partnerships", "Growth Lead"]
+            },
+            "competitor_search": {},
+            "scrape_url": {"url": f"https://www.{company.lower().replace(' ', '')}.com"},
         }
-        await emit(
-            AgentStep(
-                key="fallback",
-                label="No ANTHROPIC_API_KEY set -- running all research tools",
-                status="completed",
+
+        if not find_people:
+            default_inputs.pop("linkedin_search")
+
+        collected: dict[str, dict[str, Any]] = {}
+        for index, (name, tool_input) in enumerate(default_inputs.items()):
+            step_key = f"tool-{index}-{name}"
+            await emit(
+                AgentStep(
+                    key=step_key,
+                    label=name,
+                    status="running",
+                    detail=self._describe_input(name, tool_input),
+                    kind="tool",
+                    tool_name=name,
+                )
             )
-        )
+            started = time.perf_counter()
+            try:
+                result = await self._dispatch_tool(name, tool_input, company, category)
+            except Exception as exc:  # noqa: BLE001
+                await emit(
+                    AgentStep(
+                        key=step_key,
+                        label=name,
+                        status="failed",
+                        detail=str(exc),
+                        kind="tool",
+                        tool_name=name,
+                        duration_ms=self._elapsed_ms(started),
+                    )
+                )
+                continue
+            collected[name] = result
+            await emit(
+                AgentStep(
+                    key=step_key,
+                    label=name,
+                    status="completed",
+                    detail=self._summarize_result(name, result),
+                    kind="tool",
+                    tool_name=name,
+                    duration_ms=self._elapsed_ms(started),
+                )
+            )
         return collected

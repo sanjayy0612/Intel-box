@@ -49,7 +49,11 @@ class IntelBoxRunner:
             status="queued",
             steps=[],
         )
-        cached_profile = await self.repository.get_fresh_company_profile(request.company)
+        cached_profile = (
+            None
+            if request.force_refresh
+            else await self.repository.get_fresh_company_profile(request.company)
+        )
         if cached_profile:
             run_record.status = "cached"
             run_record.report_markdown = cached_profile.overview_summary
@@ -64,15 +68,22 @@ class IntelBoxRunner:
             return run_record
 
         async def emit(step: AgentStep) -> None:
-            run_record.updated_at = datetime.utcnow()
-            run_record.steps.append(step)
+            run_record.apply_step(step)
             if status_callback is not None:
                 await status_callback(step)
 
         run_record.status = "running"
         await emit(AgentStep(key="research", label="Researching company", status="running"))
-        result = await self.orchestrator.run(request.company, request.category, status_callback=emit)
+        result = await self.orchestrator.run(
+            request.company,
+            request.category,
+            status_callback=emit,
+            depth=request.depth,
+            find_people=request.find_people,
+        )
+        await emit(AgentStep(key="research", label="Researching company", status="completed"))
         run_record.status = "completed"
+        run_record.fallback_mode = bool(result.get("fallback_mode"))
         run_record.report_markdown = result["report_markdown"]
         run_record.campaign_playbook_markdown = result["campaign_playbook"]
         await emit(AgentStep(key="persist", label="Persisting results", status="completed"))
