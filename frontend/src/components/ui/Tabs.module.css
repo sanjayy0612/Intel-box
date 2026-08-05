@@ -1,0 +1,42 @@
+/* Underline style, 1px Verdigris on the active tab. Count badges in mono-data. */
+
+.tablist {
+  display: flex;
+  gap: var(--space-6);
+  border-bottom: 1px solid var(--hairline);
+  overflow-x: auto;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  margin-bottom: -1px;
+  border-bottom: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.count {
+  color: var(--text-muted);
+}
+
+.active .count {
+  color: var(--text-secondary);
+}
+
+.panel {
+  padding-top: var(--space-6);
+}

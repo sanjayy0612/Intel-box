@@ -1,0 +1,87 @@
+/* Cards, panels, section headers, empty states. Hierarchy comes from hairlines
+   and spacing, never from shadows -- these surfaces get no elevation. */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 20px var(--space-6);
+}
+
+.cardFlush {
+  padding: 0;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.cardTitle {
+  color: var(--text);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+
+.sectionTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.eyebrow {
+  color: var(--text-muted);
+}
+
+.sectionActions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* An invitation, not an apology. Never an illustration. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: var(--space-8) var(--space-6);
+}
+
+.emptyBody {
+  color: var(--text-secondary);
+  max-width: 46ch;
+}
+
+.emptyAction {
+  margin-top: var(--space-1);
+}
+
+/* One sentence, no "Error:" prefix, no raw exception. */
+.notice {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.noticeError {
+  border-color: var(--ember);
+  color: var(--ember);
+}

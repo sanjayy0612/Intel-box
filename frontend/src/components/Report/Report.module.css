@@ -1,0 +1,129 @@
+/* The only place in the app that gets --font-read.
+   Source Serif must not leak into headings, cards, marketing copy, or panel
+   chrome -- one exception, strictly enforced. Section 3. */
+
+.report {
+  font-family: var(--font-read);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text);
+  max-width: 68ch;
+}
+
+.report > * + * {
+  margin-top: var(--space-6);
+}
+
+/* Source Serif may use 600 for headings inside the report, since this is a
+   document rather than chrome. */
+.report h1,
+.report h2,
+.report h3 {
+  font-family: var(--font-read);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.report h1 {
+  font-size: 26px;
+  line-height: 1.25;
+}
+
+.report h2 {
+  font-size: 21px;
+  line-height: 1.3;
+  margin-top: var(--space-12);
+}
+
+.report h3 {
+  font-size: 18px;
+  line-height: 1.35;
+  margin-top: var(--space-8);
+}
+
+.report h1 + *,
+.report h2 + *,
+.report h3 + * {
+  margin-top: var(--space-3);
+}
+
+.report ul,
+.report ol {
+  padding-left: var(--space-6);
+}
+
+.report ul {
+  list-style: disc;
+}
+
+.report ol {
+  list-style: decimal;
+}
+
+.report li + li {
+  margin-top: var(--space-2);
+}
+
+.report li::marker {
+  color: var(--text-muted);
+}
+
+.report blockquote {
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--hairline-strong);
+  color: var(--text-secondary);
+}
+
+.report a {
+  color: var(--accent);
+}
+
+.report code {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: var(--surface-sunken);
+  padding: 1px 4px;
+  border-radius: var(--radius-sm);
+}
+
+.report pre {
+  overflow-x: auto;
+  padding: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius);
+}
+
+.report pre code {
+  background: none;
+  padding: 0;
+}
+
+.report hr {
+  border-top: 1px solid var(--hairline);
+}
+
+.report table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+
+.report th,
+.report td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.toolbarLabel {
+  color: var(--text-muted);
+}

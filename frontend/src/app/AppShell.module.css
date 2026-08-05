@@ -1,0 +1,217 @@
+/* Persistent left rail, 220px expanded / 56px collapsed. Content max 1200px.
+   Rail collapses to a top bar under 900px. Section 4. */
+
+.shell {
+  display: grid;
+  grid-template-columns: var(--rail-width) 1fr;
+  min-height: 100vh;
+}
+
+.shellCollapsed {
+  grid-template-columns: var(--rail-width-collapsed) 1fr;
+}
+
+.rail {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-3);
+  border-right: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.mark {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+}
+
+.brandName {
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 34px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.navLink:hover {
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.navActive {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.navGlyph {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  width: 16px;
+  flex: none;
+  text-align: center;
+  color: inherit;
+}
+
+.railFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.railButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 34px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.railButton:hover {
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.collapsedLabel {
+  display: none;
+}
+
+.shellCollapsed .brandName,
+.shellCollapsed .navLabel,
+.shellCollapsed .railLabel {
+  display: none;
+}
+
+.main {
+  min-width: 0;
+}
+
+.content {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-12) var(--page-gutter) var(--space-16);
+}
+
+.skipLink {
+  position: absolute;
+  left: -9999px;
+  top: var(--space-2);
+  z-index: 50;
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+}
+
+.skipLink:focus {
+  left: var(--space-2);
+}
+
+/* -- Top bar under 900px --------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .shell,
+  .shellCollapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--page-gutter);
+    border-right: none;
+    border-bottom: 1px solid var(--hairline);
+    overflow-x: auto;
+  }
+
+  .nav {
+    flex-direction: row;
+    gap: var(--space-1);
+    /* Let the nav scroll rather than pushing the theme control off the bar. */
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+  }
+
+  .navLink {
+    padding: 0 var(--space-3);
+  }
+
+  .railFooter {
+    flex-direction: row;
+    flex: none;
+  }
+
+  .shellCollapsed .brandName,
+  .shellCollapsed .navLabel,
+  .shellCollapsed .railLabel {
+    display: inline;
+  }
+
+  .collapseToggle {
+    display: none;
+  }
+
+  .content {
+    padding-top: var(--space-8);
+  }
+}
+
+@media (max-width: 560px) {
+  .navLabel {
+    display: none;
+  }
+
+  .brandName {
+    display: none;
+  }
+
+  .rail {
+    gap: var(--space-2);
+  }
+
+  .navLink,
+  .railButton {
+    padding: 0 var(--space-2);
+  }
+}

@@ -1,0 +1,123 @@
+/* Section 5. Input height 38, radius 6, 15px. Label above at body-sm/500,
+   helper text below at caption/--text-muted. Form field gap 16. */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.control {
+  height: 38px;
+  padding: 0 var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  color: var(--text);
+  width: 100%;
+}
+
+textarea.control {
+  height: auto;
+  min-height: 96px;
+  padding: var(--space-3);
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.control::placeholder {
+  color: var(--text-muted);
+}
+
+.control:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
+.control:focus-visible {
+  outline: none;
+}
+
+.invalid,
+.invalid:focus {
+  border-color: var(--ember);
+}
+
+.helper {
+  color: var(--text-muted);
+}
+
+.error {
+  color: var(--ember);
+}
+
+.fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.legend {
+  padding: 0;
+  font-weight: 500;
+  font-size: 13.5px;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.choice:hover {
+  background: var(--surface-sunken);
+}
+
+.choice input {
+  accent-color: var(--accent);
+  margin: 0;
+}
+
+.choiceSelected {
+  border-color: var(--accent);
+}
+
+.toggleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.toggleRow input {
+  margin-top: 3px;
+  accent-color: var(--accent);
+}
+
+.toggleText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}

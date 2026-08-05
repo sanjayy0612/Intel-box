@@ -1,0 +1,49 @@
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.groupTitle {
+  margin-bottom: var(--space-4);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.subject {
+  font-weight: 500;
+  margin-bottom: var(--space-2);
+}
+
+.body {
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  margin-bottom: var(--space-4);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.muted {
+  color: var(--text-secondary);
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}

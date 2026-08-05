@@ -1,0 +1,183 @@
+/* The extraction log. A Roast inset panel that renders the agent's tool-use loop
+   as a timed, numbered record. This element gets the boldness budget; everything
+   around it stays quiet. See docs/design-system.md section 6. */
+
+.panel {
+  background: var(--surface-inset);
+  color: var(--text-on-inset);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--hairline-inset);
+}
+
+.headerTitle {
+  color: var(--text-on-inset);
+  white-space: nowrap;
+}
+
+.headerTotals {
+  color: var(--ash);
+  text-align: right;
+}
+
+/* A fallback must never masquerade as agentic behaviour, so it says so first. */
+.fallbackNotice {
+  padding: var(--space-3) var(--space-6);
+  border-bottom: 1px solid var(--hairline-inset);
+  color: var(--crema);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+  align-items: baseline;
+  padding: var(--space-3) var(--space-6);
+  border-top: 1px solid var(--hairline-inset);
+}
+
+.row:first-child {
+  border-top: none;
+}
+
+.index {
+  color: var(--ash);
+  white-space: nowrap;
+}
+
+.toolName {
+  color: var(--text-on-inset);
+  overflow-wrap: anywhere;
+}
+
+.duration {
+  color: var(--ash);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.outcome {
+  grid-column: 2 / -1;
+  color: var(--ash);
+}
+
+/* -- The running row. The only Crema in the viewport. --------------------- */
+
+.row.running {
+  border-top-color: var(--crema);
+}
+
+.row.running .index,
+.row.running .toolName,
+.row.running .duration {
+  color: var(--crema);
+}
+
+/* -- Skipped. Struck through, with the reason stated. --------------------- */
+
+.row.skipped .toolName {
+  color: var(--ash);
+  text-decoration: line-through;
+}
+
+.row.skipped .index {
+  color: var(--ash);
+}
+
+/* -- Failed --------------------------------------------------------------- */
+
+.row.failed .toolName,
+.row.failed .outcome,
+.stateLabel {
+  color: var(--ember-on-inset);
+}
+
+.row.skipped .stateLabel {
+  color: var(--ash);
+}
+
+/* -- The extraction bar: fills toward completion under the last row. ------ */
+
+.bar {
+  height: 2px;
+  background: var(--hairline-inset);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  background: var(--crema);
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .barFill {
+    transition: transform var(--dur-slow) var(--ease);
+  }
+}
+
+/* -- Empty and cached states ---------------------------------------------- */
+
+.notice {
+  padding: var(--space-6);
+  color: var(--ash);
+}
+
+/* The one orchestrated moment in the app: a new log entry arriving during a
+   live run. Nothing else animates on arrival. */
+@media (prefers-reduced-motion: no-preference) {
+  .row[data-entering="true"] {
+    animation: entry var(--dur-base) var(--ease) both;
+  }
+}
+
+@keyframes entry {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 520px) {
+  .header,
+  .row,
+  .fallbackNotice,
+  .notice {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  /* Keep the index column, drop the duration to its own line rather than
+     letting the tool name wrap to two characters per line. */
+  .row {
+    grid-template-columns: 22px 1fr;
+  }
+
+  .duration {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .outcome {
+    grid-column: 2;
+  }
+}

@@ -1,0 +1,187 @@
+/* Section 5. Hairline row separators, no vertical rules, no zebra striping.
+   Sticky mono-label header. Numeric and date columns right-aligned. */
+
+.scroller {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+}
+
+.headCell {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  color: var(--text-muted);
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--hairline-strong);
+  white-space: nowrap;
+}
+
+.numeric {
+  text-align: right;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.sortButton:hover {
+  color: var(--text);
+}
+
+/* Sort state shows on the active column header only. */
+.sortActive {
+  color: var(--text);
+}
+
+.row {
+  height: 48px;
+  border-top: 1px solid var(--hairline);
+  position: relative;
+}
+
+.row:first-of-type {
+  border-top: none;
+}
+
+.row:hover {
+  background: var(--surface-sunken);
+}
+
+.dense .row {
+  height: 40px;
+}
+
+.cell {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: middle;
+}
+
+.cellNumeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The whole row is the click target, but the affordance is a real link so it
+   keeps keyboard focus and its own accessible name. */
+.rowLink {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.rowLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.rowLink:hover {
+  text-decoration: underline;
+}
+
+/* Row actions sit above the stretched link and stay reachable by keyboard. */
+.actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  opacity: 0;
+}
+
+.row:hover .actions,
+.row:focus-within .actions {
+  opacity: 1;
+}
+
+/* An action that is the affordance for a state, not a convenience, is always
+   visible -- a stale row's "Re-run" must not hide behind hover. */
+.actionsPersistent {
+  opacity: 1;
+}
+
+.caption {
+  caption-side: top;
+  text-align: left;
+  padding-bottom: var(--space-3);
+  color: var(--text-muted);
+}
+
+/* Below 700px each row becomes a stacked block: the header text moves into a
+   label beside each value, and the table stops being a grid. */
+@media (max-width: 700px) {
+  .table,
+  .table tbody,
+  .row,
+  .cell {
+    display: block;
+    width: 100%;
+  }
+
+  .head {
+    display: none;
+  }
+
+  .row {
+    height: auto;
+    padding: var(--space-3) 0;
+  }
+
+  .cell {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-1) var(--space-4);
+    text-align: left;
+  }
+
+  .cellNumeric {
+    text-align: right;
+  }
+
+  .cell::before {
+    content: attr(data-label);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex: none;
+  }
+
+  /* The primary cell reads as the row's heading, so it drops its label. */
+  .cellPrimary::before {
+    content: none;
+  }
+
+  /* A cell with nothing in it would otherwise stack as a bare label. */
+  .cell:empty {
+    display: none;
+  }
+
+  .cellPrimary {
+    padding-bottom: var(--space-2);
+  }
+
+  .actions {
+    opacity: 1;
+    justify-content: flex-start;
+  }
+}

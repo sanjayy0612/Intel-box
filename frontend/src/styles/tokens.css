@@ -1,0 +1,126 @@
+/* IntelBox design tokens. The single source of truth for color, type, space,
+   shape, and motion. Nothing outside this file defines a raw value.
+   See docs/design-system.md sections 2-4. */
+
+:root {
+  /* -- Palette. Six tokens. Nothing outside this list ships. ------------- */
+  --roast: #191512;
+  --porcelain: #f4f2ed;
+  --cup: #ffffff;
+  --verdigris: #2f5d50;
+  --crema: #e0a64b;
+  --ash: #8c8579;
+  --ember: #a63d33;
+
+  /* -- Semantic surfaces ------------------------------------------------- */
+  --bg: var(--porcelain);
+  --surface: var(--cup);
+  --surface-sunken: #edeae4;
+  --surface-inset: var(--roast);
+
+  --text: var(--roast);
+  --text-secondary: #5c564e;
+  /* Ash itself is 3.7:1 on Cup and 3.3:1 on Porcelain -- under the 4.5:1 floor
+     section 9 calls non-negotiable. Muted *text* therefore uses a darkened Ash;
+     the raw --ash token stays for dots, hairlines, and the Roast inset panel,
+     where it passes. */
+  --text-muted: #6e685d;
+  --text-on-inset: #ede9e1;
+  --text-on-accent: #ffffff;
+  /* Ember is dark in both themes, so its label is white in both -- unlike
+     --text-on-accent, which flips when Verdigris lightens. */
+  --text-on-ember: #ffffff;
+
+  --hairline: rgba(25, 21, 18, 0.1);
+  --hairline-strong: rgba(25, 21, 18, 0.18);
+  --hairline-inset: #2e2823;
+
+  --accent: var(--verdigris);
+  --accent-hover: #264c41;
+
+  /* Ember at 2.9:1 on Roast fails the 4.5:1 floor, so failure text inside the
+     extraction log uses a lightened Ember at the same hue. Same meaning, one
+     surface. Not for use anywhere outside the inset panel. */
+  --ember-on-inset: #d9695c;
+
+  /* Focus ring. Derived from Verdigris so it holds in both themes. */
+  --focus-ring: 0 0 0 3px rgba(47, 93, 80, 0.18);
+
+  /* -- Type -------------------------------------------------------------- */
+  --font-ui: "Schibsted Grotesk Variable", "Schibsted Grotesk", system-ui,
+    -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  --font-read: "Source Serif 4 Variable", "Source Serif 4", Georgia, serif;
+
+  /* -- Space. 4px base, no values between steps. ------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  /* -- Shape. Nothing gets 12px or above. -------------------------------- */
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-pill: 999px;
+
+  /* -- Elevation. One shadow, for genuinely floating layers only. -------- */
+  --shadow-float: 0 8px 24px rgba(25, 21, 18, 0.1),
+    0 2px 6px rgba(25, 21, 18, 0.06);
+
+  /* -- Motion ------------------------------------------------------------ */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 280ms;
+  --ease: cubic-bezier(0.2, 0, 0.13, 1);
+
+  /* -- Layout ------------------------------------------------------------ */
+  --rail-width: 220px;
+  --rail-width-collapsed: 56px;
+  --content-max: 1200px;
+  --page-gutter: var(--space-8);
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --page-gutter: 20px;
+  }
+}
+
+@media (max-width: 700px) {
+  :root {
+    --page-gutter: var(--space-4);
+  }
+}
+
+/* Dark mode inverts the chrome but not the extraction log, which is already
+   Roast and stays put. Crema and Ember are unchanged -- they read correctly on
+   both. Verdigris lightens to hold contrast against the dark surface. */
+[data-theme="dark"] {
+  --bg: #14110f;
+  --surface: #1e1a17;
+  --surface-sunken: #100e0c;
+  --surface-inset: #100e0c;
+
+  --text: #ede9e1;
+  --text-secondary: #b5aea3;
+  --text-muted: #928b7f;
+
+  --hairline: rgba(237, 233, 225, 0.1);
+  --hairline-strong: rgba(237, 233, 225, 0.18);
+
+  /* Verdigris lightens in dark mode to hold contrast against the dark surface.
+     It has to clear 4.5:1 twice -- as link and active-nav text on --surface, and
+     under the label on a filled button -- and those pull in opposite directions.
+     A light-enough accent to read as text can't carry white text, so filled
+     accent surfaces take a dark label here, the way Crema pills already do. */
+  --accent: #529b84;
+  --accent-hover: #62ab94;
+  --text-on-accent: #12100e;
+
+  --focus-ring: 0 0 0 3px rgba(82, 155, 132, 0.32);
+}

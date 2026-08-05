@@ -1,0 +1,103 @@
+/* Right-side, 480px, the one shadow in the system. Used where the user needs
+   detail without losing their place in a list. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(25, 21, 18, 0.32);
+  z-index: 40;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 480px;
+  max-width: 100vw;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-left: 1px solid var(--hairline);
+  box-shadow: var(--shadow-float);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .drawer {
+    animation: slide-in var(--dur-base) var(--ease) both;
+  }
+
+  .overlay {
+    animation: fade-in var(--dur-base) var(--ease) both;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.eyebrow {
+  color: var(--text-muted);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  flex: none;
+}
+
+.close:hover {
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.body {
+  padding: var(--space-6);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--hairline);
+}

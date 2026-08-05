@@ -1,0 +1,73 @@
+/* Status pill and freshness dot. Every status colour pairs with a label, glyph,
+   or shape -- no information is ever carried by colour alone. Section 2. */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* Idle / queued: hairline pill, no fill. Ash on Porcelain is 3.3:1, under the
+   floor, so the label takes --text-secondary as section 2 instructs. */
+.queued {
+  border-color: var(--hairline-strong);
+  color: var(--text-secondary);
+}
+
+.running {
+  background: var(--crema);
+  color: var(--roast);
+}
+
+.complete {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.failed {
+  background: var(--ember);
+  color: var(--text-on-ember);
+}
+
+/* Skipped: struck-through mono label, no pill. */
+.skipped {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  padding: 0;
+}
+
+/* -- Freshness dot -------------------------------------------------------- */
+
+.freshness {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.fresh {
+  background: var(--accent);
+}
+
+.aging {
+  background: var(--crema);
+}
+
+.stale {
+  background: var(--ember);
+}
+
+.unknown {
+  background: var(--text-muted);
+}

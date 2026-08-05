@@ -1,0 +1,56 @@
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.listItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border-top: 1px solid var(--hairline);
+  padding: var(--space-3) 0;
+}
+
+.listItem:first-child {
+  border-top: none;
+}
+
+.muted {
+  color: var(--text-secondary);
+}
+
+.personButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-1) var(--space-2);
+  margin: calc(var(--space-1) * -1) calc(var(--space-2) * -1);
+  border-radius: var(--radius);
+}
+
+.personButton:hover {
+  background: var(--surface-sunken);
+}
+
+.detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-1);
+}
+
+.detail dt {
+  color: var(--text-muted);
+  margin-top: var(--space-4);
+}
+
+.detail dt:first-child {
+  margin-top: 0;
+}
+
+.detail dd {
+  margin: 0;
+  color: var(--text);
+}
